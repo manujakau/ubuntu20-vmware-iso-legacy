@@ -1,0 +1,55 @@
+{
+  "variables": {
+  "iso": "C:/Users/Manuja/Documents/ISOs/ubuntu-20.04.1-legacy-server-amd64.iso",
+  "checksum": "f11bda2f2caed8f420802b59f382c25160b114ccc665dbac9c5046e7fceaced2",
+  "name": "Ubuntu-20.04-legacy"
+  },
+  "builders": [
+    {
+      "type": "vmware-iso",
+      "iso_url": "{{ user `iso` }}",
+      "iso_checksum": "{{ user `checksum` }}",
+      "vm_name": "{{ user `name` }}",
+      "guest_os_type": "ubuntu-64",
+      "ssh_username": "ubuntu",
+      "ssh_password": "ubuntu",
+      "ssh_port": 22,
+      "ssh_timeout": "60000s",
+      "ssh_wait_timeout": "60000s",
+
+      "version": "14",
+      "vmx_data": {
+        "memsize": "2048",
+        "numvcpus": "2",
+        "ethernet0.connectionType": "nat",
+        "cpuid.coresPerSocket": "1"
+      },
+      "disk_size": "10240",
+      "disk_type_id": "0",
+
+      "http_directory": "http",
+      "boot_command": [
+        "<esc><wait>",
+        "<esc><wait>",
+        "<enter><wait>",
+        "/install/vmlinuz<wait>",
+        " initrd=/install/initrd.gz",
+        " auto-install/enable=true",
+        " debconf/priority=critical",
+        " preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg<wait>",
+        " -- <wait>",
+        "<enter><wait>"
+      ],
+
+      "shutdown_command": "echo 'ubuntu' | sudo -S shutdown -P now",
+      "output_directory": "C:/Users/Manuja/Documents/VMoutput/{{ user `name` }}"
+    }
+  ],
+    "provisioners": [
+    {
+      "type": "shell",
+      "execute_command": "echo 'ubuntu' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+      "script": "scripts/setup.sh"
+    }
+  ]
+}
